@@ -8,7 +8,7 @@ class ToolbarItem extends StatelessWidget {
     required this.height,
     required this.scrollScale,
     this.isLongPressed = false,
-    this.gutter = 10,
+    this.gutter = 5,
     Key? key,
   }) : super(key: key);
 

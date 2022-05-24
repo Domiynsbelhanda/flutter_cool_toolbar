@@ -106,6 +106,9 @@ class _CoolToolbarState extends State<CoolToolbar> {
     });
   }
 
+  String text = 'Click to Hidden';
+  bool visibility = true;
+
   @override
   void initState() {
     super.initState();
@@ -124,57 +127,100 @@ class _CoolToolbarState extends State<CoolToolbar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: Constants.toolbarHeight,
-      margin: const EdgeInsets.only(left: 20, top: 90),
-      child: Stack(
-        children: [
-          Positioned(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: (){
+                    setState(() {
+                      if(visibility){
+                        text = "Click To Show";
+                      } else {
+                        text = "Click To Hidden";
+                      }
+
+                      visibility = !visibility;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.menu,
+                    size: 40,
+                    color: Colors.deepOrange,
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                Text(
+                    text,
+                  style: TextStyle(
+                    fontSize: 20.0
+                  ),
+                )
+              ],
+            )
+        ),
+        AnimatedOpacity(
+          opacity: visibility ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 1000),
+          child: Visibility(
+            visible: visibility,
             child: Container(
-              width: Constants.toolbarWidth,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 20,
-                    color: Colors.black.withOpacity(0.2),
+              height: Constants.toolbarHeight,
+              margin: const EdgeInsets.only(left: 5, top: 20),
+              child: Stack(
+                children: [
+                  Positioned(
+                    child: Container(
+                      width: Constants.toolbarWidth,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 20,
+                            color: Colors.black.withOpacity(0.2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onLongPressStart: (LongPressStartDetails details) {
+                      _updateLongPressedItemsFlags(
+                        longPressYLocation: details.localPosition.dy,
+                      );
+                    },
+                    onLongPressMoveUpdate: (details) {
+                      _updateLongPressedItemsFlags(
+                        longPressYLocation: details.localPosition.dy,
+                      );
+                    },
+                    onLongPressEnd: (LongPressEndDetails details) {
+                      _updateLongPressedItemsFlags(longPressYLocation: 0);
+                    },
+                    onLongPressCancel: () {
+                      _updateLongPressedItemsFlags(longPressYLocation: 0);
+                    },
+                    child: ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(10),
+                      itemCount: toolbarItems.length,
+                      itemBuilder: (c, i) => ToolbarItem(
+                        toolbarItems[i],
+                        height: itemHeight,
+                        scrollScale: itemScrollScaleValues[i],
+                        isLongPressed: longPressedItemsFlags[i],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-          GestureDetector(
-            onLongPressStart: (LongPressStartDetails details) {
-              _updateLongPressedItemsFlags(
-                longPressYLocation: details.localPosition.dy,
-              );
-            },
-            onLongPressMoveUpdate: (details) {
-              _updateLongPressedItemsFlags(
-                longPressYLocation: details.localPosition.dy,
-              );
-            },
-            onLongPressEnd: (LongPressEndDetails details) {
-              _updateLongPressedItemsFlags(longPressYLocation: 0);
-            },
-            onLongPressCancel: () {
-              _updateLongPressedItemsFlags(longPressYLocation: 0);
-            },
-            child: ListView.builder(
-              controller: scrollController,
-              padding: const EdgeInsets.all(10),
-              itemCount: toolbarItems.length,
-              itemBuilder: (c, i) => ToolbarItem(
-                toolbarItems[i],
-                height: itemHeight,
-                scrollScale: itemScrollScaleValues[i],
-                isLongPressed: longPressedItemsFlags[i],
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
